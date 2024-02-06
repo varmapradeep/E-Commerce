@@ -1,0 +1,59 @@
+
+{% load static %}
+{% include "Guest/header.html" %}
+<style>
+	    body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .login-container img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .login-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+</style>
+	<div class="login-container">
+        <h2>Login Form</h2>
+        <img src="{% static 'Guest/images/img_bg_1.jpg' %}" alt="Login Image">
+        <form class="login-form" action="{% url 'login' %}" method="POST">
+             {% csrf_token %}
+            <input type="text" name="Username" placeholder="Username" required>
+            <input type="password" name="Password" placeholder="Password" required>
+            {{error}}
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+
+{% include "Guest/footer.html" %}
+
+

@@ -1,0 +1,169 @@
+{% load static %}
+{% include "Guest/header.html" %}
+<script src="{% static '/jquery.min.js' %}"></script>
+
+<script>
+        $(document).ready(function()
+    {
+        $.ajaxSetup({
+            headers: {"X-CSRFToken" : '{{csrf_token}}'}
+        });
+        $('#district').change(function()
+        {
+            var district=$(this).val();
+            $.ajax({
+                type:"POST",
+                url:'{% url "locationbyid" %}',
+                data:{did:district},
+                dataType:"json",
+                success:function(data)
+                {
+                    $('#location').empty();
+                    var coll='<option value="">Choose Location</option>';
+                    $('#location').append(coll);
+                    $.each(data,function(key,val){
+                    var col='<option value="' +val.Locationid+' ">'+val.Locationname+'</option>';
+                    $('#location').append(col);
+                    });
+                }
+            });
+        });
+    });
+
+
+</script>
+
+
+
+<style>
+    body {
+        background-color: #f4f4f4;
+        font-family: Arial, sans-serif;
+    }
+
+    .login-container {
+        max-width: 80%;
+        margin: 10px auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .login-container img {
+        max-width: 50%;
+        height: auto;
+        margin-bottom: 20px;
+        margin-left:25%;
+    }
+
+    .login-form input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+  .login-form select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .login-form button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+</style>
+<div class="login-container">
+    <h2 style="text-align:center;color:#5a5a5a"><b>Customer Registeration Form</b></h2>
+    <img src="{% static 'Guest/images/img_bg_5.jpg' %}" alt="Login Image">
+    <form class="login-form" action="{% url 'custreg' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-4">
+                <label>Name</label>
+                <input type="text" name="name" placeholder="Enter your FullName" required>
+            </div>
+            <div class="col-lg-4">
+                <label>Image</label>
+                <input type="file" name="image" accept="image/*" required>
+            </div>
+
+            <div class="col-lg-4">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="Enter your Email" required>
+            </div>
+
+            <div class="col-lg-4">
+                <label>Gender</label><br>
+                <div style=" display: inline-flex;gap: 15px;">
+                    <input type="radio" name="gender" value="male"> Male
+                    <input type="radio" name="gender" value="female"> Female
+                </div>
+            </div>
+            <div class="col-lg-4" >
+                <label>District</label>
+                <select id="district" name="districtid"  class="dropdown" required>
+                    <option value="">Select District</option>
+                    {% for dist in district %}
+                    <option value="{{dist.Districtid}}">{{dist.Districtname}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-lg-4">
+                <label>Location</label>
+                <select id="location"  name="location" required>
+                    <option  value="">Select Location</option>
+
+
+                </select>
+            </div>
+
+            <div class="col-lg-4">
+                <label>Phone</label>
+                <input type="tel" name="phone" placeholder="Enter your Phone Number" required>
+            </div>
+            <div class="col-lg-4">
+                <label>Housename</label>
+                <input type="text" name="housename" placeholder="Enter your House Name" required>
+            </div>
+            <div class="col-lg-4">
+                <label>Pincode</label>
+                <input type="text" name="pincode" placeholder="Enter your Pincode" required>
+            </div>
+            <div class="col-lg-4">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your Username" required>
+            </div>
+            <div class="col-lg-4">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your Password" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                {{ error }}
+            </div>
+            <div class="col-lg-5"></div>
+
+
+            <div class="col-lg-2">
+                <button type="submit">Register</button>
+            </div>
+            <div class="col-lg-5"></div>
+        </div>
+    </form>
+</div>
+{% include "Guest/footer.html" %}

@@ -1,0 +1,124 @@
+{% load static %}
+{% include "Admin/header.html" %}
+<script src="{% static '/jquery.min.js' %}"></script>
+
+<script>
+    $(document).ready(function()
+    {
+        $.ajaxSetup({
+            headers: {"X-CSRFToken" : '{{csrf_token}}'}
+        });
+        $('#district').change(function()
+        {
+            var district=$(this).val();
+<!--            alert(district)-->
+            $.ajax({
+                type:"POST",
+                url:'{% url "locationbyid" %}',
+                data:{did:district},
+                dataType:"json",
+                success:function(data)
+                {
+                    $('#location').empty();
+                    i=1
+                    $.each(data,function(key,val){
+
+                    var id=val.Locationid;
+                    var EditUrl = '{% url "Locationedit" 0 %}'.replace('0', id);
+                    var DeleteUrl = '{% url "Locationdelete" 0 %}'.replace('0', id);
+                    var row='<tr class="table-info">'+
+                    '<td>'+ i++ +'</td>'+
+                    '<td>'+val.Locationname+'</td>'+
+                    '<td><a href="'+ EditUrl +'"><button type="submit"class="btn btn-primary mr-2">Edit</button></a></td>'+
+                    '<td><a href="'+ DeleteUrl +'"><button type="submit"class="btn btn-danger mr-2">Delete</button></a></td>'+
+                    '</tr>';
+                    $('#location').append(row);
+                    });
+                }
+            });
+        });
+    });
+
+
+</script>
+
+<div class="main-panel">
+
+    <div class="col-lg-12 stretch-card">
+
+        <div class="card">
+            <div style="padding-left:80%;padding-top:20px;">
+                <button type="submit" onclick="window.location.href='/Admin/Locationreg'" class="btn btn-warning mr-2">
+                    <b>ADD LOCATION</b></button>
+            </div>
+
+            <div class="card-body">
+                <h4 class="card-title">Location View</h4>
+                <div class="form-group row">
+
+                    <label class="col-sm-3 col-form-label">District</label>
+
+                    <div class="col-sm-6">
+                        <select class="form-control" name="Districtid" id="district">
+                            <option value="" selected disabled>Select District</option>
+                            {% for dist in district %}
+                            <option value="{{ dist.Districtid }}">{{ dist.Districtname }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive pt-3">
+                    <table class="table table-bordered">
+                        <thead>
+                        <tr>
+                            <th>
+                                #
+                            </th>
+                            <th>
+                                Location Name
+                            </th>
+                            <th>
+                                Edit
+                            </th>
+                            <th>
+                                Delete
+                            </th>
+
+                        </tr>
+                        </thead>
+                        <tbody id="location">
+                        {% for loc in location %}
+                        <tr class="table-info">
+                            <td>
+                                {{forloop.counter}}
+                            </td>
+                            <td>
+                                {{loc.Locationname}}
+                            </td>
+
+                            <th>
+                                <button type="submit"
+                                        onclick="window.location.href='{% url 'Locationedit' id=loc.Locationid %}'"
+                                        class="btn btn-primary mr-2">Edit
+                                </button>
+
+                            </th>
+                            <th>
+
+                                <button type="submit"
+                                        onclick="window.location.href='{% url 'Locationdelete' id=loc.Locationid %}'"
+                                        class="btn btn-danger mr-2">Delete
+                                </button>
+                            </th>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% include "Admin/footer.html" %}
+
+</div>

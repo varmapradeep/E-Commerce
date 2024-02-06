@@ -1,0 +1,128 @@
+{% load static %}
+{% include "Seller/header.html" %}
+<script src="{% static '/jquery.min.js' %}"></script>
+<script>
+    $(document).ready(function()
+{
+<!--    alert('hi');-->
+
+    $.ajaxSetup({
+        headers: {"X-CSRFToken" : '{{csrf_token}}'}
+    });
+    $('#category').change(function()
+
+    {
+        var category=$(this).val();
+<!--                    alert(category)-->
+        $.ajax({
+            type:"POST",
+            url:'{% url "categorybyid" %}',
+            data:{cat:category},
+            dataType:"json",
+            success:function(data)
+            {
+                $('#subcat').empty();
+                var coll='<option  value=""  style="display:absolute !important;" >Select Subcategory</option>';
+                $('#subcat').append(coll);
+                $.each(data,function(key,val){
+                var col='<option value="' +val.Subcategoryid+' ">' +val.Subcategoryname+ '</option>';
+<!--                    alert('a');-->
+                $('#subcat').append(col);
+                });
+            }
+        });
+    });
+});
+
+
+</script>
+
+
+<div class="breadcumb_area bg-img" style="background-image: url({% static 'Seller/img/bg-img/breadcumb.jpg' %});">
+    <div class="container h-100">
+        <div class="row h-100 align-items-center">
+            <div class="col-12">
+                <div class="page-title text-center">
+                    <h2>Product Registration</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="checkout_area section-padding-80">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-12 col-md-12">
+                <div class="checkout_details_area mt-20 clearfix">
+
+                    <div class="cart-page-heading mb-30">
+                        <h4>Product Details</h4>
+                    </div>
+
+                    <form action="{% url 'productreg' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %} 
+                        <div class="row">
+
+                            <div class="col-6 mb-3">
+                                <label>Category <span>*</span></label>
+                                <select class="w-100 form-select" id="category" name="categoryid">
+                                    <option value="" disabled selected>Select Category</option>
+                                    {% for cat in Category %}
+                                    <option value="{{cat.Categoryid}}">{{cat.Categoryname}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label>Subcategory <span>*</span></label>
+                                <select class="w-100 form-select" id="subcat" name="subcategory">
+                                    <option value="">Select Subcategory</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Product Name <span>*</span></label>
+                                <input type="text" class="form-control" value="" name="productname" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Product Price<span>*</span></label>
+                                <input type="text" class="form-control" name="productprice" value="" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Product Stock<span>*</span></label>
+                                <input type="number" class="form-control" name="productstock" value="" required>
+                            </div>
+
+                            <div class="col-6 mb-4">
+                                <label for="email_address">Product Description <span>*</span></label>
+                                <textarea type="email" class="form-control" name="productdesc" value=""></textarea>
+                            </div>
+                            <div class="col-6 mb-4">
+                                <label>Product Image1 <span>*</span></label>
+                                <input type="file" class="form-control" name="prdimg1" value="">
+                            </div>
+                            <div class="col-6 mb-4">
+                                <label>Product Image2 <span>*</span></label>
+                                <input type="file" class="form-control" name="prdimg2" value="">
+                            </div>
+
+                            <div class="col-12 mb-4">
+                                <button style="margin-left:500px;" class="btn btn-info" type="submit">Register</button>
+
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+{% include "Seller/footer.html" %}
+
+
