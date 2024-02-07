@@ -5,6 +5,7 @@ from django.views.decorators.cache import cache_control
 
 from ADMIN.models import Tbl_Subcategory, Tbl_Category
 from Customer.models import Tbl_cart
+from Guest.models import Login
 from Seller.models import Tbl_Product
 
 
@@ -69,17 +70,16 @@ def products(request, id):
 def cart(request, id):
     if request.method == 'POST':
         cart = Tbl_cart()
-        cart.Productid = request.POST.get("name")
-        cart.Productid = request.POST.get("name")
-        cart.loginid = request.POST.get("name")
-        cart.Quantity = request.POST.get("name")
+        cart.Productid = Tbl_Product.objects.get(Productid=id)
+        cart.loginid = Login.objects.get(Loginid=request.session.get('Loginid'))
+        cart.Quantity = request.POST.get("qty")
         cart.Status = 'Carted'
-
-    # prod = Tbl_Product.objects.filter(Productid=id)
+        cart.save()
+        return HttpResponse("<script>alert('Added To Cart');window.location='/Customer/Cart/';</script>")
+    # # prod = Tbl_Product.objects.filter(Productid=id)
     return render(request, "Customer/Cart.html")
 
 
 def cartview(request):
-    login = request.session.get('Loginid')
-    # prod = Tbl_Product.objects.filter(Productid=id)
-    return render(request, "Customer/Cart.html")
+    mycart = Tbl_cart.objects.filter(loginid=request.session.get('Loginid'))
+    return render(request, "Customer/Cart.html", {'cart': mycart})
