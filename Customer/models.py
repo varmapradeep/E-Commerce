@@ -11,7 +11,7 @@ class Tbl_cart(models.Model):
     Cartid = models.AutoField(primary_key=True)
     Productid = models.ForeignKey(Tbl_Product, on_delete=models.CASCADE)
     loginid = models.ForeignKey(Login, on_delete=models.CASCADE)
-    Quantity = models.BigIntegerField()
+    Quantity = models.BigIntegerField(default="")
     Cartdate = models.DateField(auto_now_add=True)
     Status = models.CharField(max_length=30)
 

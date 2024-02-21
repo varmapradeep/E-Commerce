@@ -1,5 +1,5 @@
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import cache_control
 
@@ -63,7 +63,7 @@ def subcategory(request, id):
 
 
 def products(request, id):
-    prod = Tbl_Product.objects.filter(Productid=id)
+    prod = Tbl_Product.objects.filter(Subcategoryid=id)
     return render(request, "Customer/Products.html", {'product': prod})
 
 
@@ -72,14 +72,29 @@ def cart(request, id):
         cart = Tbl_cart()
         cart.Productid = Tbl_Product.objects.get(Productid=id)
         cart.loginid = Login.objects.get(Loginid=request.session.get('Loginid'))
-        cart.Quantity = request.POST.get("qty")
+        cart.Quantity = request.POST.get("qty", '1')
         cart.Status = 'Carted'
         cart.save()
         return HttpResponse("<script>alert('Added To Cart');window.location='/Customer/Cart/';</script>")
-    # # prod = Tbl_Product.objects.filter(Productid=id)
-    return render(request, "Customer/Cart.html")
+    prod = Tbl_Product.objects.filter(Productid=id)
+    return render(request, "Customer/Cart.html", {'product': prod})
 
 
 def cartview(request):
     mycart = Tbl_cart.objects.filter(loginid=request.session.get('Loginid'))
     return render(request, "Customer/Cart.html", {'cart': mycart})
+
+
+def Cartprddelete(request, id):
+    cartid = Tbl_cart.objects.get(Cartid=id)
+    cartid.delete()
+    return HttpResponse("<script>alert('Item Removed From The Cart');window.location='/Customer/Cart';</script>")
+
+def calculate_total(request):
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity'))
+        price = float(request.POST.get('price'))
+        total = quantity * price
+        return JsonResponse({'total': total})
+    else:
+        return JsonResponse({'error': 'Invalid request'}, status=400)
