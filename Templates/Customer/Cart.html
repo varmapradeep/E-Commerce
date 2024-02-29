@@ -1,27 +1,115 @@
 {% load static %}
 {% include "Customer/header.html" %}
+{% load mathfilters %}
 <script src="{% static '/jquery.min.js' %}"></script>
+<!--<script>-->
+<!--    $(document).ready(function () {-->
+<!--        $.ajaxSetup({-->
+<!--            headers: { "X-CSRFToken": '{{csrf_token}}' }-->
+<!--        });-->
+
+<!--        $('#qty').change(function () {-->
+
+<!--            var Qty = parseFloat($('#qty').val());-->
+<!--            var Singleprice = parseFloat($('#singleprice').val());-->
+
+<!--         var totalAmount = Qty * Singleprice;-->
+<!--&lt;!&ndash;             alert(totalAmount);&ndash;&gt;-->
+<!--           $('#total').val(totalAmount);-->
+<!--           var Grandtotal= totalAmount + 50-->
+<!--             $('#Grandtotal').val(Grandtotal);-->
+
+<!--        });-->
+<!--    });-->
+
+<!--</script>-->
 <script>
-    $(document).ready(function () {
-        $.ajaxSetup({
-            headers: { "X-CSRFToken": '{{csrf_token}}' }
-        });
+    window.onload = displaytotal;
 
-        $('#qty').change(function () {
-
-            var Qty = parseFloat($('#qty').val());
-            var Singleprice = parseFloat($('#singleprice').val());
-
-         var totalAmount = Qty * Singleprice;
-<!--             alert(totalAmount);-->
-           $('#total').val(totalAmount);
-           var Grandtotal= totalAmount + 50
+    function displaytotal() {
+        let inputs = document.querySelectorAll('.tp-cart-input');
+            let grandTotal = 0;
+            inputs.forEach(function(input) {
+                let value = parseFloat(input.value);
+                if (!isNaN(value)) {
+                    grandTotal += value;
+                }
+            });
+            $('#total').val(grandTotal);
+            var Grandtotal= grandTotal + 50
              $('#Grandtotal').val(Grandtotal);
+    }
 
+    // Optionally, if quantities can change, add event listeners to recalculate
+<!--    let quantityInputs = document.querySelectorAll('.tp-cart-input');-->
+<!--    quantityInputs.forEach(function(input) {-->
+<!--        input.addEventListener('change', calculateGrandTotal);-->
+<!--    });-->
+</script>
+
+<script>
+    $(document).ready(function(){
+
+    $.ajaxSetup({
+          headers : {"X-CSRFToken" : '{{csrf_token}}'}
+          });
+    function updateTotalAmount(cartid, productquantity, Productprice,row) {
+            var totalAmount = productquantity * Productprice;
+<!--                        alert(totalAmount)-->
+            $("#pricetotal" + row).val(totalAmount);
+              calculateGrandTotal();
+        }
+        function calculateGrandTotal() {
+            var grandTotal = 0;
+            $("[id^='pricetotal']").each(function() {
+                grandTotal += parseFloat($(this).val());
+            });
+            $("#total").val(grandTotal);
+             var Grandtotal= grandTotal + 50
+             $('#Grandtotal').val(Grandtotal);
+        }
+        // Change event handler for quantity input
+        $("[id^='singleproductqty']").change(function(){
+         var row = $(this).attr("data-row");
+            var quantity =$("#singleproductqty"+row).val();
+            var productquantity=parseInt(quantity);
+
+            var stock=$("#singleproductstock" + row).val();
+            var productstock=parseInt(stock);
+
+            var cartid=$("#cartid" + row).val();
+<!--            alert(productstock+" "+productquantity+" "+cartid);-->
+
+          $.ajax({
+                type:"POST",
+                url : '{% url "updateqty" %}',
+                data : {qty :productquantity,cid:cartid},
+                dataType:"json",
+                success : function(data)
+                {
+<!--                   alert(data);-->
+                   if(parseInt(data)==1)
+                   {
+                if(productquantity<=productstock)
+            {
+
+            var Productprice= $("#singleproductprice" + row).val();
+
+            // Update total amount
+            updateTotalAmount(cartid, productquantity, Productprice,row);
+
+            }
+            else
+            {
+            alert("Stock exceeds");
+            }
+            }
+            }
+            });
         });
     });
-
 </script>
+
 
 <main>
     <section class="breadcrumb__area include-bg pt-95 pb-50">
@@ -52,6 +140,8 @@
 
                                 <th class="tp-cart-header-price">Price</th>
                                 <th class="tp-cart-header-quantity">Quantity</th>
+                                <th class="tp-cart-header-quantity">Total</th>
+
                                 <th class="tp-cart-header-quantity">Remove</th>
 
                                 <th></th>
@@ -75,17 +165,35 @@
                                     <div class="tp-product-quantity mt-10 mb-10">
 
                                         <input class="tp-cart-input" type="number" min="1"
+                                               data-row="{{forloop.counter}}"
                                                style=" height: 34px; text-align: center;font-size: 14px;border: 1px solid #DADCE0;background-color: var(--tp-common-white);padding: 0 30px;border-radius: 20px;"
-                                               max="{{cart.Productid.ProductStock}}" value="1" id="qty" name="qty">
-                                        <input class="tp-cart-input singleprice" type="hidden"
-                                               value="{{cart.Productid.Productprice}}" name="singleprice">
+                                               max="{{cart.Productid.ProductStock}}" value="{{cart.Quantity}}"
+                                               id="singleproductqty{{forloop.counter}}" name="singleproductqty">
 
+
+                                        <input class="tp-cart-input singleprice" type="hidden"
+                                               value="{{cart.Productid.Productprice}}" name="singleproductprice"
+                                               id="singleproductprice{{forloop.counter}}">
+
+
+                                        <input class="tp-cart-input singleprice" type="hidden"
+                                               value="{{cart.Productid.ProductStock}}" name="singleproductstock"
+                                               id="singleproductstock{{forloop.counter}}">
+
+
+                                        <input class="tp-cart-input singleprice" type="hidden"
+                                               value="{{cart.Cartid}}" name="cartid" id="cartid{{forloop.counter}}">
 
                                     </div>
                                 </td>
-                                <input class="tp-cart-input" type="hidden" value="{{cart.Productid.Productprice}}"
-                                       id="singleprice" name="singleprice">
-                                <!-- action -->
+                                <td class="tp-cart-quantity">
+                                    {% widthratio cart.Productid.Productprice 1 cart.Quantity as total %}
+                                    <input class="tp-cart-input singleprice" type="text" style="width: 125px;"
+                                           name="pricetotal" value="{{ total }}"
+                                           id="pricetotal{{forloop.counter}}" data-price="{{forloop.counter}}">
+                                </td>
+
+
                                 <td class="tp-cart-action"
                                     onclick="alert('Do you want to Delete?');window.location.href='{% url 'Cartprddelete' id=cart.Cartid %}'">
                                     <button class="tp-cart-action-btn">
@@ -112,7 +220,7 @@
                     <div class="tp-cart-checkout-wrapper">
                         <div class="tp-cart-checkout-top d-flex align-items-center justify-content-between">
                             <span class="tp-cart-checkout-top-title">Subtotal</span>
-                            <span><input type="text" readonly style="height:40px;width:100px;left:50px;" id="total"
+                            <span><input type="text" readonly style="height:40px;width:115px;left:50px;" id="total"
                                          name="total"></span>
                         </div>
                         <div class="tp-cart-checkout-shipping">
@@ -127,13 +235,13 @@
                         </div>
                         <div class="tp-cart-checkout-total d-flex align-items-center justify-content-between">
                             <span>Grand Total</span>
-                            <span><input type="text" style="height:40px;width:100px;left:50px;" id="Grandtotal" readonly
+                            <span><input type="text" style="height:40px;width:115px;left:50px;" id="Grandtotal" readonly
                                          name="Grandtotal"></span>
 
                             <!--                            <span>$724</span>-->
                         </div>
                         <div class="tp-cart-checkout-proceed">
-                            <a href="checkout.html" class="tp-cart-checkout-btn w-100">Proceed to Checkout</a>
+                            <a href="{% url 'checkout'  %}" class="tp-cart-checkout-btn w-100">Proceed to Checkout</a>
                         </div>
                     </div>
                 </div>

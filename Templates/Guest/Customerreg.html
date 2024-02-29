@@ -13,6 +13,7 @@
             var district=$(this).val();
             $.ajax({
                 type:"POST",
+
                 url:'{% url "locationbyid" %}',
                 data:{did:district},
                 dataType:"json",

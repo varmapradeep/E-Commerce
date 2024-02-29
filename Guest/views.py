@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 
@@ -115,6 +117,15 @@ def Sellerreg(request):
         sellerobj.Loginid = loginobj
         loginobj.save()
         sellerobj.save()
+        name = request.POST.get("name")
+        emailid = request.POST.get("email")
+
+        subject = 'Welcome To Shopy'
+        message = f'Hi {name}, thank you for registering in Shopy.'
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [emailid, ]
+        send_mail(subject, message, email_from, recipient_list)
+
         return HttpResponse(
             "<script>alert('Seller Registered Sucessfully Plese Wait untill Admin Approve Your Request');window.location='../login';</script>")
 
