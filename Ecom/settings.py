@@ -142,5 +142,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER ="varmapradeepvp@gmail.com" #sender's email-id
-EMAIL_HOST_PASSWORD ="flbj ohjy nxqq tehx" #password associated with above email-id
+EMAIL_HOST_PASSWORD ="flbj ohjy nxqq xhet" #password associated with above email-id
 
