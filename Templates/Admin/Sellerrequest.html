@@ -1,5 +1,17 @@
 {% load static %}
 {% include "Admin/header.html" %}
+<script>
+    function viewPDF(pdfUrl) {
+        // Open a new window with the PDF file's URL
+        var popup = window.open(pdfUrl, '_blank', 'toolbar=no,scrollbars=yes,resizable=yes,top=100,left=100,width=800,height=600');
+        // Focus the new window
+        if (popup) {
+            popup.focus();
+        } else {
+            alert('Please allow pop-ups for this site');
+        }
+    }
+</script>
 <div class="main-panel">
 
     <div class="col-lg-12 stretch-card">
@@ -69,16 +81,20 @@
                             <td>
                                 {{seller.SellerPhone}}
                             </td>
-
                             <td>
+                                <a href="#" onclick="viewPDF('{{ seller.Idproof.url }}'); return false;">
+                                    View PDF
+                                </a>
+                            </td>
+                            <!--                            <td>-->
 
-                                <img src="/Images/{{seller.Idproof}}"
-                                     style="width: 100px;height: 69px;border-radius:10px !important">
+                            <!--                                <img src="/Images/{{seller.Idproof}}"-->
+                            <!--                                     style="width: 100px;height: 69px;border-radius:10px !important">-->
+                            <!--                            </td>-->
+                            <td>
+                                {{ seller.locationid.Districtid.Districtname }}
                             </td>
-                             <td>
-                               {{ seller.locationid.Districtid.Districtname }}
-                            </td>
-                              <td>
+                            <td>
                                 {{ seller.locationid.Locationname }}
                             </td>
                             <th>
